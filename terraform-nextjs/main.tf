@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 #S3 Bucket
-resource "aws_s3_bucket" "website"{
+resource "aws_s3_bucket" "nextjs_bucket"{
     bucket = "nextjs-portfolio-bucket-ik"
 }
 
@@ -29,7 +29,7 @@ resource "aws_s3_bucket_public_access_block" "nextjs_bucket_public_access_block"
 resource "aws_s3_bucket_acl" "nextjs_bucket_acl" {
 
   depends_on = [ 
-    aws_s3_bucket_ownership_controls.nextjs,
+    aws_s3_bucket_ownership_controls.nextjs_bucket_ownership_controls,
     aws_s3_bucket_public_access_block.nextjs_bucket_public_access_block 
    ]
 
@@ -41,7 +41,7 @@ resource "aws_s3_bucket_acl" "nextjs_bucket_acl" {
 resource "aws_s3_bucket_policy" "nextjs_bucket_policy" {
     bucket = aws_s3_bucket.nextjs_bucket.id
     #Purpose of the policy is to allow the public to access anything in the bucket
-    policy = jsondecode({
+    policy = jsonencode({
         Version = "2012-09-07"
         Statement = [
             {   # rules
