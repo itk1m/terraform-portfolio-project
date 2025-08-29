@@ -55,53 +55,58 @@ resource "aws_s3_bucket_policy" "nextjs_bucket_policy" {
     })
 }
 
+# Origin Access Identity
+resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
+  comment = "OAI(Origin Access Identity) for Next.JS portfolio site "
+}
+
 # Cloudfront 
-# resource "aws_cloudfront_distribution" "website_distribution" {
-#     origin {
-#         domain_name = aws_s3_bucket.website.website_endpoint
-#         origin_id = "S3_Website"
+resource "aws_cloudfront_distribution" "website_distribution" {
     
-#         custom_origin_config {
-#           http_port = 80
-#           https_port = 443
-#           origin_protocol_policy = "http-only"
-#           origin_ssl_protocols = ["TLSv1.2"]
-#         }
-#     }
-
-#     enabled = true
-#     default_root_object = "index.html"
-
-#     default_cache_behavior {
-#       allowed_methods = ["GET","HEAD"]
-#       cached_methods = ["GET","HEAD"]
-#       target_origin_id = "S3-Website"
+    origin {
+        domain_name = aws_s3_bucket.nextjs_bucket.bucket_regional_domain_name
+        origin_id = "S3-nextjs-portfolio-bucket"
     
-#        forwarded_values {
-#          query_string = false
-#          cookies {
-#            forward = "none"
-#          }
-#        }
+        s3_origin_config {
+          origin_access_identity = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
+        }
+    }
 
-#       viewer_protocol_policy = "redirect-to-https"
-#       min_ttl = 0
-#       default_ttl = 3600
-#       max_ttl = 86400
-#     }
+    enabled = true
+    is_ipv6_enabled = true
+    comment = "Next.js Portflio site"
+    default_root_object = "index.html"
 
-#     restrictions {
-#       geo_restriction {
-#         restriction_type = "none"
-#       }
-#     }
+    default_cache_behavior {
+      allowed_methods = ["GET","HEAD","OPTIONS"]
+      cached_methods = ["GET","HEAD"]
+      target_origin_id = "S3-nextjs-protfolio-bucket"
+    
+       forwarded_values {
+         query_string = false
+         cookies {
+           forward = "none"
+         }
+       }
 
-#     viewer_certificate {
-#       cloudfront_default_certificate = true
-#     }
+      viewer_protocol_policy = "redirect-to-https"
+      min_ttl = 0 # minimum amount of time for an object to cache in minutes
+      default_ttl = 3600 # a whole entire day
+      max_ttl = 86400
+    }
 
-#     tags = {
-#         Name = "Portfolio Certificate"
-#         Environment = "Production"
-#     }
-# }
+    restrictions {
+      geo_restriction {
+        restriction_type = "none"
+      }
+    }
+
+    viewer_certificate {
+      cloudfront_default_certificate = true
+    }
+
+    tags = {
+        Name = "Portfolio Certificate"
+        Environment = "Production"
+    }
+}
