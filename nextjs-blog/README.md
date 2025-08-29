@@ -1,1 +1,2 @@
-This is a starter template for [Learn Next.js](https://nextjs.org/learn).
+# terraform-portfolio-project
+A Next.js application project in the cloud using Terraform
