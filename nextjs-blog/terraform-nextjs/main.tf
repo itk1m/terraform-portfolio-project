@@ -42,7 +42,7 @@ resource "aws_s3_bucket_policy" "nextjs_bucket_policy" {
     bucket = aws_s3_bucket.nextjs_bucket.id
     #Purpose of the policy is to allow the public to access anything in the bucket
     policy = jsonencode({
-        Version = "2012-09-07"
+        Version = "2012-10-17"
         Statement = [
             {   # rules
                 Sid = "PublicReadGetObject"
@@ -61,7 +61,7 @@ resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
 }
 
 # Cloudfront 
-resource "aws_cloudfront_distribution" "website_distribution" {
+resource "aws_cloudfront_distribution" "nextjs_distribution" {
     
     origin {
         domain_name = aws_s3_bucket.nextjs_bucket.bucket_regional_domain_name
@@ -80,7 +80,7 @@ resource "aws_cloudfront_distribution" "website_distribution" {
     default_cache_behavior {
       allowed_methods = ["GET","HEAD","OPTIONS"]
       cached_methods = ["GET","HEAD"]
-      target_origin_id = "S3-nextjs-protfolio-bucket"
+      target_origin_id = "S3-nextjs-portfolio-bucket"
     
        forwarded_values {
          query_string = false
@@ -105,8 +105,5 @@ resource "aws_cloudfront_distribution" "website_distribution" {
       cloudfront_default_certificate = true
     }
 
-    tags = {
-        Name = "Portfolio Certificate"
-        Environment = "Production"
-    }
+
 }
